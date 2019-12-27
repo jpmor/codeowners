@@ -3,11 +3,12 @@ package codeowners
 import (
 	"bytes"
 	"io"
+	"path/filepath"
 )
 
 type Entry struct {
 	path    string
-	suffix  int
+	suffix  PathSufix
 	comment string
 	owners  []string
 }
@@ -25,6 +26,7 @@ type Parser struct {
 func newEntry() *Entry {
 	return &Entry{
 		owners: make([]string, 0),
+		suffix: PathSufix(None),
 	}
 }
 
@@ -61,6 +63,7 @@ func (p *Parser) Parse() (*Entry, error) {
 	}
 	//TODO: Validate/normalize file path?
 	entry.path = b.String()
+	entry.suffix = determineSuffix(entry.path)
 
 	tok, lit = p.scanIgnoreWhitespace()
 	for tok != EOF {
@@ -69,10 +72,26 @@ func (p *Parser) Parse() (*Entry, error) {
 			if tok == EOF {
 				break
 			}
+			if tok == HASH {
+				b.Reset()
+				b.WriteString(lit)
+				for {
+					tok, lit = p.scan()
+					if tok == EOF {
+						break
+					}
+					b.WriteString(lit)
+				}
+				entry.comment = b.String()
+				b.Reset()
+				break
+			}
 			b.WriteString(lit)
 			tok, lit = p.scan()
 		}
-		entry.owners = append(entry.owners, b.String())
+		if b.Len() > 0 {
+			entry.owners = append(entry.owners, b.String())
+		}
 		tok, lit = p.scanIgnoreWhitespace()
 	}
 
@@ -80,8 +99,26 @@ func (p *Parser) Parse() (*Entry, error) {
 	return entry, nil
 }
 
-// scan returns the next token from the underlying scanner.
-// If a token has been unscanned then read that instead.
+func determineSuffix(path string) PathSufix {
+	base := filepath.Base(path)
+	ext := filepath.Ext(path)
+
+	baseFirstCh := []rune(base)[0]
+	if baseFirstCh == '*' && ext != "" {
+		return PathSufix(Type)
+	}
+
+	if baseFirstCh == '*' && ext == "" {
+		return PathSufix(Flat)
+	}
+
+	if pathR := []rune(path); pathR[len(pathR)-1] == '/' {
+		return PathSufix(Recursive)
+	}
+
+	return PathSufix(Absolute)
+}
+
 func (p *Parser) scan() (tok Token, lit string) {
 	// If we have a token on the buffer, then return it.
 	if p.buf.n != 0 {
