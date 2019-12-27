@@ -1,0 +1,8 @@
+github.com/cznic/golex v0.0.0-20181122101858-9c343928389c h1:G8zTsaqyVfIHpgMFcGgdbhHSFhlNc77rAKkhVbQ9kQg=
+github.com/cznic/golex v0.0.0-20181122101858-9c343928389c/go.mod h1:+bmmJDNmKlhWNG+gwWCkaBoTy39Fs+bzRxVBzoTQbIc=
+github.com/cznic/parser v0.0.0-20181122101858-d773202d5b1f h1:DUtr2TvhM9rmiHKVJWoLqDY2+MdxljW9hlaS/oYoi1c=
+github.com/cznic/parser v0.0.0-20181122101858-d773202d5b1f/go.mod h1:2B43mz36vGZNZEwkWi8ayRSSUXLfjL8OkbzwW4NcPMM=
+github.com/cznic/strutil v0.0.0-20181122101858-275e90344537 h1:MZRmHqDBd0vxNwenEbKSQqRVT24d3C05ft8kduSwlqM=
+github.com/cznic/strutil v0.0.0-20181122101858-275e90344537/go.mod h1:AHHPPPXTw0h6pVabbcbyGRK1DckRn7r/STdZEeIDzZc=
+github.com/dghubble/trie v0.0.0-20190708005417-09498fbfbadb h1:Vg7QlQEvBgOvB+ReUTG0wnqM1VatG2ZOvPB1ZVB70HM=
+github.com/dghubble/trie v0.0.0-20190708005417-09498fbfbadb/go.mod h1:xNBeoT4V92/aNvuC3IJ2g59uxuKP4/kzvkpoHrb7v4A=
