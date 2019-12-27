@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func BuildEntriesFromFile(filePath string) []*Entry {
+func BuildEntriesFromFile(filePath string, includeComments bool) []*Entry {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -33,7 +33,10 @@ func BuildEntriesFromFile(filePath string) []*Entry {
 		if err != nil {
 			panic(err)
 		}
-		log.Println(entry)
+
+		if (entry.suffix == PathSufix(None)) && !includeComments {
+			continue
+		}
 
 		entries = append(entries, entry)
 
