@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"io"
 	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 type Entry struct {
@@ -89,14 +91,34 @@ func (p *Parser) Parse() (*Entry, error) {
 			b.WriteString(lit)
 			tok, lit = p.scan()
 		}
-		if b.Len() > 0 {
-			entry.owners = append(entry.owners, b.String())
+		if owner := b.String(); isvalidOwner(owner) {
+			entry.owners = append(entry.owners, owner)
 		}
 		tok, lit = p.scanIgnoreWhitespace()
 	}
 
 	// Return the successfully parsed statement.
 	return entry, nil
+}
+
+func isvalidOwner(owner string) bool {
+	if len(owner) < 1 || len(owner) > 254 {
+		return false
+	}
+
+	//Does the owner start with a @ and only have one => @owner-name
+	if strings.Index(owner, "@") == 0 && strings.Index(owner, "@") == strings.LastIndex(owner, "@") {
+		return true
+	}
+
+	//Is it a valid email
+	var rxEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+	if rxEmail.MatchString(owner) {
+		return true
+	}
+
+	return false
 }
 
 func determineSuffix(path string) PathSufix {
