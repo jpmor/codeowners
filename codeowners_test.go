@@ -6,7 +6,6 @@ import (
 )
 
 func TestBuildEntriesFromFile(t *testing.T) {
-
 	outputs := []*Entry{
 		&Entry{
 			path:    "*",
@@ -70,7 +69,7 @@ func TestBuildEntriesFromFile(t *testing.T) {
 		},
 	}
 
-	entries := BuildEntriesFromFile("fixtures/testCODEOWNERS", false)
+	entries := BuildEntriesFromFile("fixtures/testCODEOWNERS_Rules", false)
 
 	if len(entries) != len(outputs) {
 		t.Fatalf("Expected output size of %d but got %d", len(outputs), len(entries))
@@ -80,6 +79,27 @@ func TestBuildEntriesFromFile(t *testing.T) {
 	for i := range outputs {
 		if !reflect.DeepEqual(entries[i], outputs[i]) {
 			t.Errorf("Expected, \n %#v \n got \n %#v", outputs[i], entries[i])
+		}
+
+	}
+}
+
+func TestBuildFromFile(t *testing.T) {
+	co := BuildFromFile("fixtures/testCODEOWNERS_Example")
+	testcases := []struct {
+		input    string
+		expected []string
+	}{
+		{
+			input: "app/lib/network",
+			expected: []string{
+				"@a", "@b", "@c",
+			},
+		},
+	}
+	for _, tc := range testcases {
+		if out := co.findOwners(tc.input); !reflect.DeepEqual(out, tc.expected) {
+			t.Errorf("%s : expected %v got %v", tc.input, tc.expected, out)
 		}
 
 	}
