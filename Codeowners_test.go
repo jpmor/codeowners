@@ -124,7 +124,7 @@ func TestBuildFromFile(t *testing.T) {
 
 	for _, tc := range testcases {
 
-		if out := co.findOwners(tc.input); !sameStringSlice(out, tc.expected) {
+		if out := co.FindOwners(tc.input); !sameStringSlice(out, tc.expected) {
 			t.Errorf("%s : expected %v got %v", tc.input, tc.expected, out)
 		}
 

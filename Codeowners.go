@@ -99,7 +99,7 @@ func (n *node) addEntry(e *Entry) {
 	n.entries = append(n.entries, e)
 }
 
-func (t *CodeOwners) findOwners(path string) []string {
+func (t *CodeOwners) FindOwners(path string) []string {
 	owners := []string{}
 	walker := func(key string, value interface{}) error {
 		if value == nil {
