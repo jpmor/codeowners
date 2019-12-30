@@ -75,7 +75,7 @@ func BuildFromFile(filePath string) *CodeOwners {
 		if value == nil {
 			n = newNode()
 		} else {
-			//n, ok = value.(*node)
+			n, ok = value.(*node)
 			if !ok {
 				out, _ := fmt.Printf("%v, %v", ok, n)
 				panic(out)
@@ -83,7 +83,11 @@ func BuildFromFile(filePath string) *CodeOwners {
 		}
 
 		n.addEntry(entry)
-		t.Put(entry.path, n)
+		path := entry.path
+		if []rune(path)[len(path)-1] == '/' {
+			path = path[:len(path)-1]
+		}
+		t.Put(path, n)
 	}
 
 	return t
@@ -96,17 +100,39 @@ func (n *node) addEntry(e *Entry) {
 func (t *CodeOwners) findOwners(filepath string) []string {
 	owners := []string{}
 	walker := func(key string, value interface{}) error {
+		// value = t.Get(key + "/")
+		if value == nil {
+			return nil
+		}
 		n, ok := value.(*node)
 		if !ok {
 			panic("Structure of the code owner index is malformed")
 		}
 
 		for _, en := range n.entries {
-			owners = append(owners, en.owners...)
+			if en.suffix == PathSufix(Recursive) || en.suffix == PathSufix(Absolute) {
+				owners = append(owners, en.owners...)
+			}
 		}
 
 		return nil
 	}
 	t.WalkKey(filepath, walker)
-	return owners
+	return removeDuplicatesUnordered(owners)
+}
+
+func removeDuplicatesUnordered(elements []string) []string {
+	encountered := map[string]bool{}
+
+	// Create a map of all unique elements.
+	for v := range elements {
+		encountered[elements[v]] = true
+	}
+
+	// Place all keys from the map into a slice.
+	result := []string{}
+	for key, _ := range encountered {
+		result = append(result, key)
+	}
+	return result
 }

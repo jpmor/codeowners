@@ -1,3 +1,7 @@
 app/ @a
 app/lib/ @b
-app/lib/network @c
+app/lib/network/ @c
+
+app/vendor/* @b
+app/vendor/hooli/ @c
+app/vendor/hooli/middle_out.go @richard

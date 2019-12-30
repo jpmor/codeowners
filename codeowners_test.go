@@ -96,8 +96,22 @@ func TestBuildFromFile(t *testing.T) {
 				"@a", "@b", "@c",
 			},
 		},
+		{
+			input: "app/vendor/hooli/",
+			expected: []string{
+				"@a", "@c",
+			},
+		},
+		{
+			input: "app/vendor/hooli/middle_out.go",
+			expected: []string{
+				"@a", "@c", "@richard",
+			},
+		},
 	}
+
 	for _, tc := range testcases {
+
 		if out := co.findOwners(tc.input); !reflect.DeepEqual(out, tc.expected) {
 			t.Errorf("%s : expected %v got %v", tc.input, tc.expected, out)
 		}
