@@ -3,6 +3,7 @@ package codeowners
 import (
 	"bufio"
 	"fmt"
+	"path/filepath"
 
 	"io"
 	"log"
@@ -21,6 +22,7 @@ type CodeOwners struct {
 	*trie.PathTrie
 }
 
+// BuildEntriesFromFile from an file path, absolute or relative, builds the entries for the CODEOWNERS file
 func BuildEntriesFromFile(filePath string, includeComments bool) []*Entry {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -62,8 +64,8 @@ func newNode() *node {
 	}
 }
 
+// BuildFromFile from an file path, absolute or relative, builds the index for the CODEOWNERS file
 func BuildFromFile(filePath string) *CodeOwners {
-
 	t := &CodeOwners{
 		trie.NewPathTrie(),
 	}
@@ -97,10 +99,9 @@ func (n *node) addEntry(e *Entry) {
 	n.entries = append(n.entries, e)
 }
 
-func (t *CodeOwners) findOwners(filepath string) []string {
+func (t *CodeOwners) findOwners(path string) []string {
 	owners := []string{}
 	walker := func(key string, value interface{}) error {
-		// value = t.Get(key + "/")
 		if value == nil {
 			return nil
 		}
@@ -117,7 +118,20 @@ func (t *CodeOwners) findOwners(filepath string) []string {
 
 		return nil
 	}
-	t.WalkKey(filepath, walker)
+	t.WalkKey(path, walker)
+
+	//get the base wild card type
+	ext := "*" + filepath.Ext(path)
+	extEntry := t.Get(ext)
+	if extEntry != nil {
+		n, ok := extEntry.(*node)
+		if !ok {
+			log.Fatal("Structure of the code owner index is malformed")
+		}
+		for _, en := range n.entries {
+			owners = append(owners, en.owners...)
+		}
+	}
 	return removeDuplicatesUnordered(owners)
 }
 
@@ -131,7 +145,7 @@ func removeDuplicatesUnordered(elements []string) []string {
 
 	// Place all keys from the map into a slice.
 	result := []string{}
-	for key, _ := range encountered {
+	for key := range encountered {
 		result = append(result, key)
 	}
 	return result

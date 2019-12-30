@@ -5,3 +5,10 @@ app/lib/network/ @c
 app/vendor/* @b
 app/vendor/hooli/ @c
 app/vendor/hooli/middle_out.go @richard
+
+README @legal
+
+*.js @frontend
+
+app/vendor/hooli/index.js @mike
+app/vendor/hooli/index.react.js @mike

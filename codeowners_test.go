@@ -108,13 +108,52 @@ func TestBuildFromFile(t *testing.T) {
 				"@a", "@c", "@richard",
 			},
 		},
+		{
+			input: "app/vendor/hooli/index.js",
+			expected: []string{
+				"@frontend", "@a", "@c", "@mike",
+			},
+		},
+		{
+			input: "app/vendor/hooli/index.react.js",
+			expected: []string{
+				"@frontend", "@a", "@c", "@mike",
+			},
+		},
 	}
 
 	for _, tc := range testcases {
 
-		if out := co.findOwners(tc.input); !reflect.DeepEqual(out, tc.expected) {
+		if out := co.findOwners(tc.input); !sameStringSlice(out, tc.expected) {
 			t.Errorf("%s : expected %v got %v", tc.input, tc.expected, out)
 		}
 
 	}
+}
+
+// borrowed from https://stackoverflow.com/questions/36000487/check-for-equality-on-slices-without-order
+func sameStringSlice(x, y []string) bool {
+	if len(x) != len(y) {
+		return false
+	}
+	// create a map of string -> int
+	diff := make(map[string]int, len(x))
+	for _, _x := range x {
+		// 0 value for int is 0, so just increment a counter for the string
+		diff[_x]++
+	}
+	for _, _y := range y {
+		// If the string _y is not in diff bail out early
+		if _, ok := diff[_y]; !ok {
+			return false
+		}
+		diff[_y]--
+		if diff[_y] == 0 {
+			delete(diff, _y)
+		}
+	}
+	if len(diff) == 0 {
+		return true
+	}
+	return false
 }
