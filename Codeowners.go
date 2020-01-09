@@ -23,10 +23,10 @@ type CodeOwners struct {
 }
 
 // BuildEntriesFromFile from an file path, absolute or relative, builds the entries for the CODEOWNERS file
-func BuildEntriesFromFile(filePath string, includeComments bool) []*Entry {
+func BuildEntriesFromFile(filePath string, includeComments bool) ([]*Entry, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer file.Close()
 
@@ -55,7 +55,7 @@ func BuildEntriesFromFile(filePath string, includeComments bool) []*Entry {
 
 		entries = append(entries, entry)
 	}
-	return entries
+	return entries, nil
 }
 
 func newNode() *node {
@@ -65,14 +65,18 @@ func newNode() *node {
 }
 
 // BuildFromFile from an file path, absolute or relative, builds the index for the CODEOWNERS file
-func BuildFromFile(filePath string) *CodeOwners {
+func BuildFromFile(filePath string) (*CodeOwners, error) {
 	t := &CodeOwners{
 		trie.NewPathTrie(),
 	}
 	var n *node
 	var ok bool
 
-	for _, entry := range BuildEntriesFromFile(filePath, false) {
+	entries, err := BuildEntriesFromFile(filePath, false)
+	if err != nil {
+		return nil, err
+	}
+	for _, entry := range entries {
 		value := t.Get(entry.path)
 		if value == nil {
 			n = newNode()
@@ -92,7 +96,7 @@ func BuildFromFile(filePath string) *CodeOwners {
 		t.Put(path, n)
 	}
 
-	return t
+	return t, nil
 }
 
 func (n *node) addEntry(e *Entry) {

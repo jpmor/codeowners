@@ -69,8 +69,12 @@ func TestBuildEntriesFromFile(t *testing.T) {
 		},
 	}
 
-	entries := BuildEntriesFromFile("fixtures/testCODEOWNERS_Rules", false)
+	entries, err := BuildEntriesFromFile("fixtures/testCODEOWNERS_Rules", false)
 
+	if err != nil {
+		t.Fatalf("expecting a non error")
+		t.FailNow()
+	}
 	if len(entries) != len(outputs) {
 		t.Fatalf("Expected output size of %d but got %d", len(outputs), len(entries))
 		t.FailNow()
@@ -85,7 +89,11 @@ func TestBuildEntriesFromFile(t *testing.T) {
 }
 
 func TestBuildFromFile(t *testing.T) {
-	co := BuildFromFile("fixtures/testCODEOWNERS_Example")
+	co, err := BuildFromFile("fixtures/testCODEOWNERS_Example")
+	if err != nil {
+		t.Fatalf("expecting a non error")
+		t.FailNow()
+	}
 	testcases := []struct {
 		input    string
 		expected []string
