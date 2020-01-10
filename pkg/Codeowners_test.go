@@ -139,6 +139,57 @@ func TestBuildFromFile(t *testing.T) {
 	}
 }
 
+func TestBuildFromFileWildCard(t *testing.T) {
+	co, err := BuildFromFile("fixtures/testCODEOWNERS_Example_Wildcard")
+	if err != nil {
+		t.Fatalf("expecting a non error")
+		t.FailNow()
+	}
+	testcases := []struct {
+		input    string
+		expected []string
+	}{
+		{
+			input: "app/lib/network",
+			expected: []string{
+				"@devs", "@a", "@b", "@c",
+			},
+		},
+		{
+			input: "app/vendor/hooli/",
+			expected: []string{
+				"@devs", "@a", "@c",
+			},
+		},
+		{
+			input: "app/vendor/hooli/middle_out.go",
+			expected: []string{
+				"@devs", "@a", "@c", "@richard",
+			},
+		},
+		{
+			input: "app/vendor/hooli/index.js",
+			expected: []string{
+				"@devs", "@frontend", "@a", "@c", "@mike",
+			},
+		},
+		{
+			input: "app/vendor/hooli/index.react.js",
+			expected: []string{
+				"@devs", "@frontend", "@a", "@c", "@mike",
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+
+		if out := co.FindOwners(tc.input); !sameStringSlice(out, tc.expected) {
+			t.Errorf("%s : expected %v got %v", tc.input, tc.expected, out)
+		}
+
+	}
+}
+
 // borrowed from https://stackoverflow.com/questions/36000487/check-for-equality-on-slices-without-order
 func sameStringSlice(x, y []string) bool {
 	if len(x) != len(y) {
