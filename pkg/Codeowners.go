@@ -111,7 +111,7 @@ func (t *CodeOwners) FindOwners(path string) []string {
 		}
 		n, ok := value.(*node)
 		if !ok {
-			panic("Structure of the code owner index is malformed")
+			panic("Structure of the index is malformed")
 		}
 
 		for _, en := range n.entries {
@@ -127,6 +127,19 @@ func (t *CodeOwners) FindOwners(path string) []string {
 	//get the base wild card type
 	ext := "*" + filepath.Ext(path)
 	extEntry := t.Get(ext)
+	if extEntry != nil {
+		n, ok := extEntry.(*node)
+		if !ok {
+			log.Fatal("Structure of the code owner index is malformed")
+		}
+		for _, en := range n.entries {
+			owners = append(owners, en.owners...)
+		}
+	}
+
+	//get the base wild card
+	ext = "*"
+	extEntry = t.Get(ext)
 	if extEntry != nil {
 		n, ok := extEntry.(*node)
 		if !ok {

@@ -1,3 +1,5 @@
+* @devs
+
 app/ @a
 app/lib/ @b
 app/lib/network/ @c
@@ -12,5 +14,3 @@ README @legal
 
 app/vendor/hooli/index.js @mike
 app/vendor/hooli/index.react.js @mike
-
-* @devs
