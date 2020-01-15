@@ -64,7 +64,12 @@ func (p *Parser) Parse() (*Entry, error) {
 		tok, lit = p.scan()
 	}
 	//TODO: Validate/normalize file path?
-	entry.path = b.String()
+	path := b.String()
+	if len(path) > 1 && []rune(path)[0] == '/' {
+		path = path[1:]
+	}
+
+	entry.path = path
 	entry.suffix = determineSuffix(entry.path)
 
 	tok, lit = p.scanIgnoreWhitespace()
