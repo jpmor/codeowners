@@ -44,13 +44,13 @@ func TestBuildEntriesFromFile(t *testing.T) {
 			owners:  []string{"@group", "@group/with-nested/subgroup"},
 		},
 		&Entry{
-			path:    "/docs/",
+			path:    "docs/",
 			comment: "",
 			suffix:  PathSufix(Recursive),
 			owners:  []string{"@all-docs"},
 		},
 		&Entry{
-			path:    "/docs/*",
+			path:    "docs/*",
 			comment: "",
 			suffix:  PathSufix(Flat),
 			owners:  []string{"@root-docs"},
@@ -62,7 +62,7 @@ func TestBuildEntriesFromFile(t *testing.T) {
 			owners:  []string{"@lib-owner"},
 		},
 		&Entry{
-			path:    "/config/",
+			path:    "config/",
 			comment: "",
 			suffix:  PathSufix(Recursive),
 			owners:  []string{"@config-owner"},
