@@ -2,12 +2,13 @@ package codeowners
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 
 	"io"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/alecharmon/trie"
@@ -22,16 +23,10 @@ type CodeOwners struct {
 	*trie.PathTrie
 }
 
-// BuildEntriesFromFile from an file path, absolute or relative, builds the entries for the CODEOWNERS file
-func BuildEntriesFromFile(filePath string, includeComments bool) ([]*Entry, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
+// BuildEntries ...
+func BuildEntries(input []byte, includeComments bool) ([]*Entry, error) {
 	entries := []*Entry{}
-	reader := bufio.NewReader(file)
+	reader := bufio.NewReader(bytes.NewReader(input))
 
 	for {
 		line, _, err := reader.ReadLine()
@@ -58,6 +53,15 @@ func BuildEntriesFromFile(filePath string, includeComments bool) ([]*Entry, erro
 	return entries, nil
 }
 
+// BuildEntriesFromFile from an file path, absolute or relative, builds the entries for the CODEOWNERS file
+func BuildEntriesFromFile(filePath string, includeComments bool) ([]*Entry, error) {
+	bytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	return BuildEntries(bytes, includeComments)
+}
+
 func newNode() *node {
 	return &node{
 		entries: []*Entry{},
@@ -66,16 +70,30 @@ func newNode() *node {
 
 // BuildFromFile from an file path, absolute or relative, builds the index for the CODEOWNERS file
 func BuildFromFile(filePath string) (*CodeOwners, error) {
+	entries, err := BuildEntriesFromFile(filePath, false)
+	if err != nil {
+		return nil, err
+	}
+	return createIndexFromEntries(entries)
+}
+
+// BuildFromFile from an file path, absolute or relative, builds the index for the CODEOWNERS file
+func BuildIndex(input []byte) (*CodeOwners, error) {
+	entries, err := BuildEntries(input, false)
+	if err != nil {
+		return nil, err
+	}
+	return createIndexFromEntries(entries)
+}
+
+// createIndexFromEntries ...
+func createIndexFromEntries(entries []*Entry) (*CodeOwners, error) {
 	t := &CodeOwners{
 		trie.NewPathTrie(),
 	}
 	var n *node
 	var ok bool
 
-	entries, err := BuildEntriesFromFile(filePath, false)
-	if err != nil {
-		return nil, err
-	}
 	for _, entry := range entries {
 		value := t.Get(entry.path)
 		if value == nil {
@@ -103,6 +121,7 @@ func (n *node) addEntry(e *Entry) {
 	n.entries = append(n.entries, e)
 }
 
+// FindOwners ...
 func (t *CodeOwners) FindOwners(path string) []string {
 	owners := []string{}
 	walker := func(key string, value interface{}) error {
